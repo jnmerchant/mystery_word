@@ -89,6 +89,9 @@ def main
         current_mask[matches] = validated_guess
       end
       puts current_mask
+      if !current_mask.include? "_"
+        puts "You won!"
+      end
     else
       if not duplicate
         number_of_guesses -= 1
@@ -97,7 +100,9 @@ def main
       end
       duplicate = false
     end
-    puts game_word
+  end
+  if current_mask.include? "_"
+    puts "You lost. The mystery word was: " + game_word
   end
   play_again
 
