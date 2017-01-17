@@ -1,5 +1,3 @@
-##https://www.ruby-forum.com/topic/164161 - have a string call a method
-
 def stage_words(mode_selected)
   word_source = File.readlines('/usr/share/dict/words')
   word_list = word_source.map { |word| word.chomp.downcase}
@@ -25,7 +23,7 @@ end
 def is_mode_valid?(entered_mode)
   valid_modes = {"1" => "Easy", "2" => "Normal", "3" => "Hard"}
   if not valid_modes.key?(entered_mode)
-    puts "Please enter the number 1, 2, or 3 to select a mode."
+    puts "Enter the number 1, 2, or 3 to select a mode."
     get_user_mode
   end
   valid_modes[entered_mode]
@@ -36,13 +34,6 @@ def get_word_mask(word_length)
   word_mask.join
 end
 
-def begin_game(game_word)
-  puts "Let's begin the game!"
-  puts "Your word has " + game_word.length.to_s + " letters."
-  word_mask = get_word_mask(game_word.length)
-  p word_mask.to_s
-end
-
 def validate_guess(guess)
   valid = "no"
   while valid == "no"
@@ -50,26 +41,43 @@ def validate_guess(guess)
       valid = "yes"
     else
       puts "Please enter a valid letter: "
-      guess = gets.chomp
+      guess = gets.chomp.downcase
     end
   end
   guess
 end
 
-def user_turn(game_word)
-  puts "Please guess a letter: "
-  guess = gets.chomp.downcase
-  validated_guess = validate_guess(guess)
-
+def search_game_word(valid_guess, game_word)
+  index_of_matches = (0 ... game_word.length).find_all { |i| game_word[i] == valid_guess }
 end
 
 def main
+  current_mask = ""
+  letters_guessed = []
+  number_of_guesses = 8
   mode_selected = get_user_mode
   word_list = stage_words(mode_selected)
   game_word = word_list.sample
-  begin_game(game_word)
-  user_turn(game_word)
 
+  puts "Let's begin the game!"
+  puts "Your word has " + game_word.length.to_s + " letters."
+
+  while number_of_guesses > 0
+    puts "Guess a letter: "
+    guess = gets.chomp.downcase
+    validated_guess = validate_guess(guess)
+    if letters_guessed.include?(validated_guess)
+      puts "You have already guessed that letter. You still have " + number_of_guesses.to_s + " guesses left."
+    end
+    letters_guessed << validated_guess
+    search_results = search_game_word(validated_guess,game_word)
+    if search_results.count > 0
+      puts "Correct guess! You still have " + number_of_guesses.to_s + " guesses left."
+    else
+      number_of_guesses -= 1
+      puts "Letter was not found. " + number_of_guesses.to_s + " guesses left."
+    end
+  end
 end
 
 if __FILE__ == $PROGRAM_NAME
