@@ -51,8 +51,17 @@ def search_game_word(valid_guess, game_word)
   index_of_matches = (0 ... game_word.length).find_all { |i| game_word[i] == valid_guess }
 end
 
+def play_again
+  puts "Would you like to play again? (y or n)"
+  replay = gets.chomp
+  if replay == "y"
+    main
+  else
+    exit
+  end
+end
+
 def main
-  current_mask = ""
   letters_guessed = []
   number_of_guesses = 8
   mode_selected = get_user_mode
@@ -61,23 +70,37 @@ def main
 
   puts "Let's begin the game!"
   puts "Your word has " + game_word.length.to_s + " letters."
-
+  current_mask = get_word_mask(game_word.length)
+  puts current_mask
   while number_of_guesses > 0
     puts "Guess a letter: "
     guess = gets.chomp.downcase
     validated_guess = validate_guess(guess)
     if letters_guessed.include?(validated_guess)
       puts "You have already guessed that letter. You still have " + number_of_guesses.to_s + " guesses left."
+      puts current_mask
+      duplicate = true
     end
     letters_guessed << validated_guess
     search_results = search_game_word(validated_guess,game_word)
-    if search_results.count > 0
+    if search_results.count > 0  && duplicate == false
       puts "Correct guess! You still have " + number_of_guesses.to_s + " guesses left."
+      search_results.each do |matches|
+        current_mask[matches] = validated_guess
+      end
+      puts current_mask
     else
-      number_of_guesses -= 1
-      puts "Letter was not found. " + number_of_guesses.to_s + " guesses left."
+      if not duplicate
+        number_of_guesses -= 1
+        puts "Letter was not found. " + number_of_guesses.to_s + " guesses left."
+        puts current_mask
+      end
+      duplicate = false
     end
+    puts game_word
   end
+  play_again
+
 end
 
 if __FILE__ == $PROGRAM_NAME
